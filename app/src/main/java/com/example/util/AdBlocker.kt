@@ -10,12 +10,21 @@ import java.io.ByteArrayInputStream
  */
 object AdBlocker {
 
+    /**
+     * Standard contemporary mobile Chrome User-Agent signature for Android.
+     * Prevents "update required" or "unsupported browser" notices and ensures smooth HTML5 video playback.
+     */
+    const val MOBILE_CHROME_USER_AGENT =
+        "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.6613.127 Mobile Safari/537.36"
+
     private val adDomains = hashSetOf(
         "doubleclick.net",
         "googleads",
         "googlesyndication.com",
         "adservice.google.com",
         "google-analytics.com",
+        "googletagmanager.com",
+        "googletagservices.com",
         "adnxs.com",
         "adsystem.com",
         "adroll.com",
@@ -54,14 +63,27 @@ object AdBlocker {
         "chartboost.com",
         "clarium.io",
         "adkeeper.co.uk",
+        "adskeeper.co.uk",
+        "adskeeper.com",
+        "adcash.com",
+        "admaven.com",
+        "trafficstars.com",
+        "richads.com",
+        "hilltopads.net",
+        "clickadu.com",
         "effectivemeasure.net",
         "moatads.com",
         "yieldmo.com",
-        "contextweb.com"
+        "contextweb.com",
+        "yandex.ru/ads",
+        "an.yandex.ru",
+        "doubleverify.com",
+        "innovid.com",
+        "iasds.com"
     )
 
     /**
-     * Checks if a URL points to a known ad server, tracker, or unwanted pop-up network.
+     * Checks if a URL points to a known ad network domain or tracking hostname.
      */
     fun isAd(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
@@ -70,7 +92,7 @@ object AdBlocker {
     }
 
     /**
-     * Creates an empty WebResourceResponse to effectively block the requested ad content.
+     * Creates an empty WebResourceResponse (zero bytes) to intercept and prevent the ad resource from loading.
      */
     fun createEmptyResource(): WebResourceResponse {
         return WebResourceResponse(

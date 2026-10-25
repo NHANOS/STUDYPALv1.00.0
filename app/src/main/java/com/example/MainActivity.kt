@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -102,10 +103,24 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        handleBlockedAppIntent(intent)
         setContent {
             MyApplicationTheme {
                 StudyXApp()
             }
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleBlockedAppIntent(intent)
+    }
+
+    private fun handleBlockedAppIntent(intent: android.content.Intent?) {
+        val blockedApp = intent?.getStringExtra(com.example.service.StudyBlockerService.EXTRA_BLOCKED_APP_KEY)
+        if (!blockedApp.isNullOrBlank()) {
+            com.example.data.StudyLockManager.getInstance(this).notifyBlockedAppTriggered(blockedApp)
         }
     }
 }
@@ -520,8 +535,9 @@ fun StudyXApp() {
                     },
                     text = {
                         Text(
-                            text = "'$appName' is blocked during your active non-cancellable study session. Stay focused until the timer completes!",
-                            color = Color.White.copy(alpha = 0.9f)
+                            text = "'$appName' is blocked! This app is blocked until your study session ends.",
+                            color = Color.White.copy(alpha = 0.95f),
+                            lineHeight = 20.sp
                         )
                     },
                     confirmButton = {

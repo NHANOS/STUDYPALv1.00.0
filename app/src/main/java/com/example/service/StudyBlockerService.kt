@@ -42,10 +42,13 @@ class StudyBlockerService : Service() {
     private lateinit var studyLockManager: StudyLockManager
 
     companion object {
-        const val CHANNEL_ID = "study_countdown_focus_channel"
+        const val CHANNEL_ID_COUNTDOWN = "study_countdown_focus_channel"
+        const val CHANNEL_ID_ALARM = "study_alarm_heads_up_channel"
         const val NOTIFICATION_ID = 2001
 
         const val ACTION_START_SESSION = "com.example.service.ACTION_START_SESSION"
+        const val ACTION_STOP_ALARM = "com.example.service.ACTION_STOP_ALARM"
+        const val ACTION_DISMISS_ALARM = "com.example.service.ACTION_DISMISS_ALARM"
         const val ACTION_SILENCE_ALARM = "com.example.service.ACTION_SILENCE_ALARM"
 
         const val EXTRA_BLOCKED_APP_KEY = "extra_blocked_app_detected"
@@ -63,7 +66,7 @@ class StudyBlockerService : Service() {
 
         fun silenceAlarm(context: Context) {
             val intent = Intent(context, StudyBlockerService::class.java).apply {
-                action = ACTION_SILENCE_ALARM
+                action = ACTION_STOP_ALARM
             }
             context.startService(intent)
         }
@@ -73,22 +76,22 @@ class StudyBlockerService : Service() {
         super.onCreate()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         studyLockManager = StudyLockManager.getInstance(this)
-        createNotificationChannel()
+        createNotificationChannels()
         initVibrator()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
+            ACTION_STOP_ALARM,
+            ACTION_DISMISS_ALARM,
             ACTION_SILENCE_ALARM -> {
-                stopLoudAlarm()
-                studyLockManager.stopAlarm()
+                handleStopAlarm()
             }
             else -> {
                 startForegroundNotification()
                 startStudyTicker()
             }
         }
-        // START_STICKY ensures Android recreates the service if system kills it under memory pressure
         return START_STICKY
     }
 
@@ -99,13 +102,17 @@ class StudyBlockerService : Service() {
         val title = session?.chapterTitle ?: "Active Focus Session"
         val remainingSec = session?.remainingSeconds ?: (25 * 60)
         val blockedCount = session?.blockedPackages?.size ?: 0
+        val isCompleted = session?.isTimerCompleted == true
 
-        val notification = buildOngoingNotification(
-            title = title,
-            remainingSeconds = remainingSec,
-            blockedAppsCount = blockedCount,
-            isCompleted = session?.isTimerCompleted == true
-        )
+        val notification = if (isCompleted) {
+            buildRingingAlarmNotification()
+        } else {
+            buildOngoingCountdownNotification(
+                title = title,
+                remainingSeconds = remainingSec,
+                blockedAppsCount = blockedCount
+            )
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -128,24 +135,18 @@ class StudyBlockerService : Service() {
 
                 if (session.isTimerCompleted) {
                     if (!isAlarmActive) {
-                        triggerLoudAlarm()
+                        triggerLoudAlarmAndNotification()
                     }
-                    delay(2000)
+                    delay(1500)
                     continue
                 }
 
                 val currentRemaining = session.remainingSeconds
                 if (currentRemaining <= 0) {
-                    // Timer reached 00:00!
+                    // Timer reached 00:00! Mark completed and elevate to Heads-Up alarm
                     studyLockManager.updateSessionCountdown(0, isCompleted = true)
-                    triggerLoudAlarm()
-                    updateNotification(
-                        title = session.chapterTitle,
-                        remainingSeconds = 0,
-                        blockedAppsCount = session.blockedPackages.size,
-                        isCompleted = true
-                    )
-                    delay(2000)
+                    triggerLoudAlarmAndNotification()
+                    delay(1500)
                     continue
                 }
 
@@ -153,19 +154,19 @@ class StudyBlockerService : Service() {
                 val newRemaining = currentRemaining - 1
                 studyLockManager.updateSessionCountdown(newRemaining, isCompleted = false)
 
-                // Update notification every 1 second
-                updateNotification(
+                // Update persistent notification with live countdown
+                val ongoingNotification = buildOngoingCountdownNotification(
                     title = session.chapterTitle,
                     remainingSeconds = newRemaining,
-                    blockedAppsCount = session.blockedPackages.size,
-                    isCompleted = false
+                    blockedAppsCount = session.blockedPackages.size
                 )
+                notificationManager.notify(NOTIFICATION_ID, ongoingNotification)
 
-                // App Blocker Check: inspect currently running foreground app
+                // Real-time App Blocker: inspect currently running foreground application
                 if (session.blockedPackages.isNotEmpty() && AppBlockerHelper.isUsageAccessGranted(this@StudyBlockerService)) {
                     val fgPackage = AppBlockerHelper.getForegroundPackageName(this@StudyBlockerService)
                     if (fgPackage != null && session.blockedPackages.contains(fgPackage) && fgPackage != packageName) {
-                        // Blocked app detected! Re-launch study focus screen
+                        // Distraction detected! Instantly redirect back to STUDYPAL screen
                         handleBlockedAppEncountered(fgPackage)
                     }
                 }
@@ -185,21 +186,23 @@ class StudyBlockerService : Service() {
 
         studyLockManager.notifyBlockedAppTriggered(appName)
 
-        // Bring our app to foreground to enforce the study session
+        // Bring STUDYPAL to the foreground immediately with FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP
         val launchIntent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_BLOCKED_APP_KEY, appName)
         }
         startActivity(launchIntent)
     }
 
-    private fun triggerLoudAlarm() {
+    private fun triggerLoudAlarmAndNotification() {
         if (isAlarmActive) return
         isAlarmActive = true
 
+        // Play loud repeating alarm sound
         try {
             val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
             mediaPlayer?.release()
             mediaPlayer = MediaPlayer().apply {
@@ -218,7 +221,7 @@ class StudyBlockerService : Service() {
             Log.e("StudyBlockerService", "Failed to play alarm: ${e.message}")
         }
 
-        // Start repeating vibration pattern
+        // Repeating vibration pattern
         try {
             val pattern = longArrayOf(0, 800, 400, 800, 400, 1000)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -230,19 +233,42 @@ class StudyBlockerService : Service() {
         } catch (e: Exception) {
             Log.e("StudyBlockerService", "Failed to vibrate: ${e.message}")
         }
+
+        // Elevate notification to Heads-Up Priority with explicit Stop / Dismiss Action
+        val headsUpNotification = buildRingingAlarmNotification()
+        notificationManager.notify(NOTIFICATION_ID, headsUpNotification)
     }
 
-    private fun stopLoudAlarm() {
+    private fun handleStopAlarm() {
         isAlarmActive = false
+
+        // 1. Immediately stop MediaPlayer and release audio resources
         try {
             mediaPlayer?.stop()
             mediaPlayer?.release()
             mediaPlayer = null
         } catch (_: Exception) {}
 
+        // 2. Stop vibration
         try {
             vibrator?.cancel()
         } catch (_: Exception) {}
+
+        // 3. Update StudyLockManager alarm state
+        studyLockManager.stopAlarm()
+
+        // 4. Cancel and clear the ongoing notification immediately
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
+        notificationManager.cancel(NOTIFICATION_ID)
+
+        // 5. Cancel ticker job and terminate service
+        tickerJob?.cancel()
+        stopSelf()
     }
 
     private fun initVibrator() {
@@ -255,18 +281,33 @@ class StudyBlockerService : Service() {
         }
     }
 
-    private fun createNotificationChannel() {
+    private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Study Focus & App Blocker",
+            // 1. Low-importance silent channel for 1-second countdown updates
+            val countdownChannel = NotificationChannel(
+                CHANNEL_ID_COUNTDOWN,
+                "Study Timer Countdown",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Ongoing silent countdown display for active study sessions."
+                setShowBadge(false)
+                setSound(null, null)
+                enableVibration(false)
+            }
+            notificationManager.createNotificationChannel(countdownChannel)
+
+            // 2. High-importance channel for ringing Heads-Up Alarm upon timer completion
+            val alarmChannel = NotificationChannel(
+                CHANNEL_ID_ALARM,
+                "Study Timer Alarm Alert",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Displays live countdown for non-cancellable study sessions and enforces app blocking."
+                description = "High priority Heads-Up alert when study session ends."
                 setShowBadge(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                enableVibration(true)
             }
-            notificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(alarmChannel)
         }
     }
 
@@ -277,11 +318,10 @@ class StudyBlockerService : Service() {
     }
 
     @SuppressLint("NotificationTrampoline")
-    private fun buildOngoingNotification(
+    private fun buildOngoingCountdownNotification(
         title: String,
         remainingSeconds: Int,
-        blockedAppsCount: Int,
-        isCompleted: Boolean
+        blockedAppsCount: Int
     ): Notification {
         val openAppIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -293,50 +333,68 @@ class StudyBlockerService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val silenceIntent = Intent(this, StudyBlockerService::class.java).apply {
-            action = ACTION_SILENCE_ALARM
+        return NotificationCompat.Builder(this, CHANNEL_ID_COUNTDOWN)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle("🔒 Study Focus: $title")
+            .setContentText("Time remaining: ${formatTime(remainingSeconds)} • $blockedAppsCount apps blocked")
+            .setSubText("Non-Cancellable Session")
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+            .build()
+    }
+
+    @SuppressLint("NotificationTrampoline")
+    private fun buildRingingAlarmNotification(): Notification {
+        val openAppIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
-        val silencePendingIntent = PendingIntent.getService(
+        val pendingIntent = PendingIntent.getActivity(
             this,
-            1,
-            silenceIntent,
+            0,
+            openAppIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentIntent(pendingIntent)
-            .setOngoing(!isCompleted)
-            .setOnlyAlertOnce(true)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-
-        if (isCompleted) {
-            builder.setContentTitle("🎉 Study Session Completed!")
-                .setContentText("⏰ Loud alarm ringing! Tap to complete chapter & unlock next steps.")
-                .addAction(android.R.drawable.ic_lock_idle_alarm, "Silence Alarm", silencePendingIntent)
-        } else {
-            builder.setContentTitle("🔒 Study Focus: $title")
-                .setContentText("Time remaining: ${formatTime(remainingSeconds)} • $blockedAppsCount apps blocked")
-                .setSubText("Non-Cancellable Session")
+        // Stop / Dismiss PendingIntent targeting AlarmDismissReceiver and Service action
+        val stopIntent = Intent(this, AlarmDismissReceiver::class.java).apply {
+            action = ACTION_STOP_ALARM
         }
+        val stopPendingIntent = PendingIntent.getBroadcast(
+            this,
+            1,
+            stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
-        return builder.build()
-    }
+        val dismissIntent = Intent(this, AlarmDismissReceiver::class.java).apply {
+            action = ACTION_DISMISS_ALARM
+        }
+        val dismissPendingIntent = PendingIntent.getBroadcast(
+            this,
+            2,
+            dismissIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
-    private fun updateNotification(
-        title: String,
-        remainingSeconds: Int,
-        blockedAppsCount: Int,
-        isCompleted: Boolean
-    ) {
-        val notification = buildOngoingNotification(title, remainingSeconds, blockedAppsCount, isCompleted)
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        return NotificationCompat.Builder(this, CHANNEL_ID_ALARM)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle("⏰ Study Session Ended!")
+            .setContentText("Timer reached 00:00! Tap Stop to silence alarm and unlock next steps.")
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", stopPendingIntent)
+            .addAction(android.R.drawable.ic_lock_idle_alarm, "Dismiss", dismissPendingIntent)
+            .build()
     }
 
     override fun onDestroy() {
-        stopLoudAlarm()
-        tickerJob?.cancel()
+        handleStopAlarm()
         super.onDestroy()
     }
 }

@@ -320,9 +320,10 @@ fun InAppWebViewScreen(
                         )
 
                         settings.apply {
+                            // Mask as contemporary mobile Chrome browser signature for Android
+                            setUserAgentString(AdBlocker.MOBILE_CHROME_USER_AGENT)
                             javaScriptEnabled = true
                             domStorageEnabled = true
-                            databaseEnabled = true
                             loadWithOverviewMode = true
                             useWideViewPort = true
                             cacheMode = WebSettings.LOAD_DEFAULT
@@ -351,6 +352,7 @@ fun InAppWebViewScreen(
                             }
 
                             @Deprecated("Deprecated in Java")
+                            @Suppress("DEPRECATION")
                             override fun shouldInterceptRequest(
                                 view: WebView?,
                                 url: String?
@@ -365,12 +367,9 @@ fun InAppWebViewScreen(
                                 view: WebView?,
                                 request: WebResourceRequest?
                             ): Boolean {
-                                val destUrl = request?.url?.toString() ?: ""
-                                if (AdBlocker.isAd(destUrl)) {
-                                    return true
-                                }
-                                // Strictly keep links inside this internal WebView
-                                return false
+                                // Return true for any URL loading request. This prevents the WebView from following
+                                // links or navigating to any new pages, keeping the user strictly on the original page.
+                                return true
                             }
 
                             @Deprecated("Deprecated in Java")
@@ -378,10 +377,8 @@ fun InAppWebViewScreen(
                                 view: WebView?,
                                 url: String?
                             ): Boolean {
-                                if (AdBlocker.isAd(url)) {
-                                    return true
-                                }
-                                return false
+                                // Return true to keep user strictly on the original page
+                                return true
                             }
 
                             override fun onPageStarted(

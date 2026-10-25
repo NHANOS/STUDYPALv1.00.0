@@ -21,7 +21,7 @@ import com.example.R
 enum class AnimeBackgroundTheme(
     val displayName: String,
     val moodDescription: String,
-    @DrawableRes val drawableResId: Int,
+    @param:DrawableRes val drawableResId: Int,
     val assetFileName: String
 ) {
     RAINY_EVENING(

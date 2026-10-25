@@ -23,10 +23,6 @@ class SundayTestManager private constructor(context: Context) {
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences("sunday_test_preferences", Context.MODE_PRIVATE)
 
-    // Simulation toggle to allow testing the Sunday Exam flow anytime
-    private val _isSimulationMode = MutableStateFlow(prefs.getBoolean(KEY_SIMULATION_MODE, false))
-    val isSimulationMode: StateFlow<Boolean> = _isSimulationMode.asStateFlow()
-
     private val _attempts = MutableStateFlow<List<SundayAttemptRecord>>(loadAttemptsFromPrefs())
     val attempts: StateFlow<List<SundayAttemptRecord>> = _attempts.asStateFlow()
 
@@ -39,7 +35,6 @@ class SundayTestManager private constructor(context: Context) {
         const val PASSING_BENCHMARK = 60 // 60+ marks out of 80 to pass
         const val RESTRICTION_MESSAGE = "This test is only available on Sunday. You cannot take the test today."
 
-        private const val KEY_SIMULATION_MODE = "sunday_simulation_mode"
         private const val KEY_ATTEMPTS = "sunday_attempts_json"
         private const val KEY_RESULTS = "sunday_results_json"
         private const val KEY_LAST_ATTEMPT_TIME = "sunday_last_attempt_time"
@@ -56,20 +51,12 @@ class SundayTestManager private constructor(context: Context) {
     }
 
     /**
-     * Check if the device's current system date is Sunday.
+     * Strictly enforce production date verification using system time.
+     * Only returns true if today is Calendar.SUNDAY.
      */
     fun isTodaySunday(): Boolean {
-        if (_isSimulationMode.value) return true
         val calendar = Calendar.getInstance()
         return calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
-    }
-
-    /**
-     * Set simulation mode on or off.
-     */
-    fun setSimulationMode(enabled: Boolean) {
-        _isSimulationMode.value = enabled
-        prefs.edit().putBoolean(KEY_SIMULATION_MODE, enabled).apply()
     }
 
     /**
@@ -153,8 +140,8 @@ class SundayTestManager private constructor(context: Context) {
     /**
      * Check whether a new test can be started right now.
      */
-    fun canStartTest(): Pair<Boolean, String?> {
-        if (!isTodaySunday()) {
+    fun canStartTest(isSunday: Boolean = isTodaySunday()): Pair<Boolean, String?> {
+        if (!isSunday) {
             return Pair(false, RESTRICTION_MESSAGE)
         }
         checkAndResetIfNewSunday()

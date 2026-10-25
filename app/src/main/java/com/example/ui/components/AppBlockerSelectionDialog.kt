@@ -81,6 +81,7 @@ fun AppBlockerSelectionDialog(
     var searchQuery by remember { mutableStateOf("") }
     var isLoadingApps by remember { mutableStateOf(true) }
     var hasUsageAccess by remember { mutableStateOf(AppBlockerHelper.isUsageAccessGranted(context)) }
+    var hasOverlayPermission by remember { mutableStateOf(AppBlockerHelper.isOverlayPermissionGranted(context)) }
 
     // Load installed apps asynchronously
     LaunchedEffect(Unit) {
@@ -94,9 +95,10 @@ fun AppBlockerSelectionDialog(
         isLoadingApps = false
     }
 
-    // Refresh usage access state when dialog is resumed/viewed
+    // Refresh permissions state when dialog is viewed
     LaunchedEffect(Unit) {
         hasUsageAccess = AppBlockerHelper.isUsageAccessGranted(context)
+        hasOverlayPermission = AppBlockerHelper.isOverlayPermissionGranted(context)
     }
 
     val filteredApps = remember(installedApps, searchQuery) {
@@ -211,58 +213,129 @@ fun AppBlockerSelectionDialog(
                     )
                 }
 
-                // Usage Access Prompt if not enabled
-                if (!hasUsageAccess) {
+                // Permission Guidance: Usage Access & Overlay Permissions
+                if (!hasUsageAccess || !hasOverlayPermission) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .background(Color(0x33E63946))
                             .border(1.dp, Color(0x88E63946), RoundedCornerShape(12.dp))
-                            .padding(10.dp),
+                            .padding(10.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Rounded.Security,
+                                contentDescription = null,
+                                tint = Color(0xFFFF6B6B),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Required Blocker Permissions",
+                                color = Color.White,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        if (!hasUsageAccess) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "1. Usage Access (PACKAGE_USAGE_STATS)",
+                                        color = Color.White,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = "Allows background service to detect active distraction apps.",
+                                        color = Color.White.copy(alpha = 0.8f),
+                                        fontSize = 10.5.sp
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color.White.copy(alpha = 0.25f))
+                                        .clickable {
+                                            context.startActivity(AppBlockerHelper.getUsageAccessSettingsIntent())
+                                        }
+                                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                                ) {
+                                    Text("Grant", color = Color.White, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+
+                        if (!hasUsageAccess && !hasOverlayPermission) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        if (!hasOverlayPermission) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "2. Display Over Other Apps (SYSTEM_ALERT_WINDOW)",
+                                        color = Color.White,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = "Allows immediate blocking screen redirect when an app is opened.",
+                                        color = Color.White.copy(alpha = 0.8f),
+                                        fontSize = 10.5.sp
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color.White.copy(alpha = 0.25f))
+                                        .clickable {
+                                            context.startActivity(AppBlockerHelper.getOverlaySettingsIntent(context))
+                                        }
+                                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                                ) {
+                                    Text("Grant", color = Color.White, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0x2206D6A0))
+                            .border(1.dp, Color(0x6606D6A0), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Security,
+                            imageVector = Icons.Rounded.Check,
                             contentDescription = null,
-                            tint = Color(0xFFFF6B6B),
-                            modifier = Modifier.size(20.dp)
+                            tint = Color(0xFF06D6A0),
+                            modifier = Modifier.size(16.dp)
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Usage Access Required",
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Grant permission so the background service can detect and block apps.",
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 10.5.sp
-                            )
-                        }
                         Spacer(modifier = Modifier.width(6.dp))
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.White.copy(alpha = 0.2f))
-                                .clickable {
-                                    val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                    context.startActivity(intent)
-                                }
-                                .padding(horizontal = 10.dp, vertical = 6.dp)
-                        ) {
-                            Text(
-                                text = "Grant",
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                        Text(
+                            text = "Usage Access & Overlay Permissions Granted • Real-time blocking active",
+                            color = Color(0xFF06D6A0),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
 

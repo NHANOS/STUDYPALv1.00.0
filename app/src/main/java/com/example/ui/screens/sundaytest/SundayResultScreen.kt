@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Rule
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -30,7 +31,6 @@ import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.HourglassBottom
 import androidx.compose.material.icons.rounded.Public
-import androidx.compose.material.icons.rounded.Rule
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -446,7 +446,7 @@ private fun AiAuditSummariesCard(result: SundayTestResult) {
                         .background(AnimeGlowPink.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Rounded.Rule, contentDescription = null, tint = AnimeGlowPink, modifier = Modifier.size(18.dp))
+                    Icon(Icons.AutoMirrored.Rounded.Rule, contentDescription = null, tint = AnimeGlowPink, modifier = Modifier.size(18.dp))
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {

@@ -22,8 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AccessTime
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -34,8 +34,6 @@ import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -77,7 +75,6 @@ fun SundayGateScreen(
 ) {
     val context = LocalContext.current
     val manager = remember { SundayTestManager.getInstance(context) }
-    val isSimulationMode by manager.isSimulationMode.collectAsStateWithLifecycle()
     val attempts by manager.attempts.collectAsStateWithLifecycle()
     val pastResults by manager.savedResults.collectAsStateWithLifecycle()
 
@@ -130,21 +127,12 @@ fun SundayGateScreen(
                 SundayHeaderBanner(onBackClick = onBackClick)
             }
 
-            // Developer / Tester Simulation Mode Toggle Card
-            item {
-                SimulationToggleCard(
-                    isSimulationMode = isSimulationMode,
-                    onToggle = { manager.setSimulationMode(it) }
-                )
-            }
-
-            // Sunday Availability Check
+            // Sunday Availability Check: strictly verified via system time
             if (!isSunday) {
-                // RESTRICTION: Not Sunday
+                // RESTRICTION: Not Sunday - only show live countdown timer and restriction message
                 item {
                     NonSundayRestrictionCard(
-                        countdownFormatted = manager.formatCountdown(countdownMillis),
-                        onBypassRestriction = { manager.setSimulationMode(true) }
+                        countdownFormatted = manager.formatCountdown(countdownMillis)
                     )
                 }
             } else {
@@ -154,13 +142,12 @@ fun SundayGateScreen(
                         attemptsUsed = attempts.size,
                         remainingAttempts = remainingAttempts,
                         isCooldown = isCooldown,
-                        cooldownFormatted = manager.formatCooldownTime(cooldownMillis),
-                        onBypassCooldown = { manager.bypassCooldownForTesting() }
+                        cooldownFormatted = manager.formatCooldownTime(cooldownMillis)
                     )
                 }
 
                 if (remainingAttempts > 0 && !isCooldown) {
-                    // Class Selection Section
+                    // Class Selection Section (Opens strictly and exclusively on Sundays)
                     item {
                         ClassSelectionSection(
                             classes = classes,
@@ -199,9 +186,7 @@ fun SundayGateScreen(
                     }
                 } else if (remainingAttempts <= 0) {
                     item {
-                        AllAttemptsExhaustedCard(
-                            onResetAttempts = { manager.resetAttemptsForTesting() }
-                        )
+                        AllAttemptsExhaustedCard()
                     }
                 }
             }
@@ -238,7 +223,7 @@ private fun SundayHeaderBanner(onBackClick: () -> Unit) {
                     .testTag("sunday_gate_back_btn")
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.White
                 )
@@ -283,63 +268,8 @@ private fun SundayHeaderBanner(onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun SimulationToggleCard(
-    isSimulationMode: Boolean,
-    onToggle: (Boolean) -> Unit
-) {
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = 6.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Developer Simulation Mode",
-                    color = AnimeGlowCyan,
-                    fontSize = 13.5.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = if (isSimulationMode) "Sunday mode active (Exam & Evaluation testable)" else "Checking system device date",
-                    color = Color.White.copy(alpha = 0.75f),
-                    fontSize = 11.5.sp
-                )
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = if (isSimulationMode) "Simulate Sunday" else "Real Date",
-                    color = if (isSimulationMode) AnimeGlowGold else Color.White.copy(alpha = 0.6f),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Switch(
-                    checked = isSimulationMode,
-                    onCheckedChange = onToggle,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = AnimeGlowCyan,
-                        uncheckedThumbColor = Color.LightGray,
-                        uncheckedTrackColor = Color.White.copy(alpha = 0.2f)
-                    ),
-                    modifier = Modifier.testTag("sunday_simulation_switch")
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun NonSundayRestrictionCard(
-    countdownFormatted: String,
-    onBypassRestriction: () -> Unit = {}
+    countdownFormatted: String
 ) {
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
@@ -422,42 +352,12 @@ private fun NonSundayRestrictionCard(
             Spacer(modifier = Modifier.height(18.dp))
 
             Text(
-                text = "CBSE Board Mock Tests unlock automatically at 00:00 every Sunday.\nTip: Tap below or toggle 'Developer Simulation Mode' above to take the exam anytime during review.",
+                text = "CBSE Board Mock Tests unlock automatically at 00:00 every Sunday.",
                 color = Color.White.copy(alpha = 0.75f),
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 17.sp
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Brush.horizontalGradient(listOf(AnimeGlowPink, AnimeGlowCyan)))
-                    .clickable(onClick = onBypassRestriction)
-                    .padding(vertical = 12.dp)
-                    .testTag("sunday_bypass_restriction_btn"),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Rounded.PlayArrow,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "BYPASS & CHOOSE CLASS / SUBJECT",
-                        color = Color.White,
-                        fontSize = 13.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp
-                    )
-                }
-            }
         }
     }
 }
@@ -467,8 +367,7 @@ private fun SundayStatusTrackerCard(
     attemptsUsed: Int,
     remainingAttempts: Int,
     isCooldown: Boolean,
-    cooldownFormatted: String,
-    onBypassCooldown: () -> Unit
+    cooldownFormatted: String
 ) {
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
@@ -550,29 +449,14 @@ private fun SundayStatusTrackerCard(
                             fontSize = 11.5.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Rounded.Timer, contentDescription = null, tint = AnimeGlowGold, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "Time Remaining: $cooldownFormatted",
-                                    color = AnimeGlowGold,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Rounded.Timer, contentDescription = null, tint = AnimeGlowGold, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Bypass (Dev)",
-                                color = AnimeGlowCyan,
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .clickable(onClick = onBypassCooldown)
-                                    .padding(4.dp)
+                                text = "Time Remaining: $cooldownFormatted",
+                                color = AnimeGlowGold,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
@@ -800,9 +684,7 @@ private fun SpecBadge(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun AllAttemptsExhaustedCard(
-    onResetAttempts: () -> Unit = {}
-) {
+private fun AllAttemptsExhaustedCard() {
     GlassCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
@@ -825,23 +707,6 @@ private fun AllAttemptsExhaustedCard(
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(AnimeGlowCyan.copy(alpha = 0.2f))
-                    .border(1.dp, AnimeGlowCyan.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
-                    .clickable(onClick = onResetAttempts)
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
-                    .testTag("sunday_reset_attempts_btn")
-            ) {
-                Text(
-                    text = "Reset Attempts (Dev Mode)",
-                    color = AnimeGlowCyan,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
         }
     }
 }

@@ -27,10 +27,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.EditNote
-import androidx.compose.material.icons.rounded.MenuBook
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.Quiz
@@ -88,7 +88,7 @@ fun HomeScreen(
             id = "feature_study",
             title = "Study",
             subtitle = "Focused study sessions, Pomodoro intervals & syllabus tracker",
-            icon = Icons.Rounded.MenuBook,
+            icon = Icons.AutoMirrored.Rounded.MenuBook,
             accentColors = listOf(Color(0xFFFF7597), Color(0xFFFF9B71))
         ),
         FeatureCardItem(

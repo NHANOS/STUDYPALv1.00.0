@@ -6,8 +6,10 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Process
+import android.provider.Settings
 
 data class InstalledAppItem(
     val packageName: String,
@@ -43,34 +45,38 @@ object AppBlockerHelper {
     )
 
     /**
-     * Fetch user-accessible installed applications that have a launch intent.
+     * Fetch user-accessible installed applications that have a launch intent,
+     * using PackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+     * and filtering with packageManager.getLaunchIntentForPackage(packageName) != null.
      */
     fun getInstalledLaunchableApps(context: Context): List<InstalledAppItem> {
         val pm = context.packageManager
-        val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
 
-        val resolveInfos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.queryIntentActivities(mainIntent, PackageManager.ResolveInfoFlags.of(0L))
+        @Suppress("DEPRECATION")
+        val installedApplications = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong()))
         } else {
-            @Suppress("DEPRECATION")
-            pm.queryIntentActivities(mainIntent, 0)
+            pm.getInstalledApplications(PackageManager.GET_META_DATA)
         }
 
         val myPackageName = context.packageName
         val appList = mutableListOf<InstalledAppItem>()
         val seenPackages = mutableSetOf<String>()
 
-        for (info in resolveInfos) {
-            val pkg = info.activityInfo.packageName
+        for (appInfo in installedApplications) {
+            val pkg = appInfo.packageName
             if (pkg == myPackageName || seenPackages.contains(pkg)) {
+                continue
+            }
+
+            // Strictly filter with getLaunchIntentForPackage to ensure the app is launchable by the user
+            if (pm.getLaunchIntentForPackage(pkg) == null) {
                 continue
             }
             seenPackages.add(pkg)
 
             val name = try {
-                info.loadLabel(pm).toString()
+                pm.getApplicationLabel(appInfo).toString()
             } catch (_: Exception) {
                 pkg
             }
@@ -99,8 +105,9 @@ object AppBlockerHelper {
     }
 
     /**
-     * Check if PACKAGE_USAGE_STATS permission has been enabled by the user in Settings.
+     * Check if PACKAGE_USAGE_STATS permission has been granted by the user.
      */
+    @Suppress("DEPRECATION")
     fun isUsageAccessGranted(context: Context): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager ?: return false
         val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -110,7 +117,6 @@ object AppBlockerHelper {
                 context.packageName
             )
         } else {
-            @Suppress("DEPRECATION")
             appOps.checkOpNoThrow(
                 AppOpsManager.OPSTR_GET_USAGE_STATS,
                 Process.myUid(),
@@ -121,8 +127,47 @@ object AppBlockerHelper {
     }
 
     /**
+     * Check if SYSTEM_ALERT_WINDOW (display over other apps / overlay) permission is granted.
+     */
+    fun isOverlayPermissionGranted(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(context)
+        } else {
+            true
+        }
+    }
+
+    /**
+     * Intent to open the Usage Access settings screen.
+     */
+    fun getUsageAccessSettingsIntent(): Intent {
+        return Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+    }
+
+    /**
+     * Intent to open the Overlay (Draw over other apps) settings screen for this app.
+     */
+    fun getOverlaySettingsIntent(context: Context): Intent {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${context.packageName}")
+            ).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        } else {
+            Intent(Settings.ACTION_SETTINGS).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        }
+    }
+
+    /**
      * Query the top foreground package using UsageEvents (most reliable across Android 8-15).
      */
+    @Suppress("DEPRECATION")
     fun getForegroundPackageName(context: Context): String? {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
             ?: return null

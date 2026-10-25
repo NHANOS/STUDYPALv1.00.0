@@ -25,10 +25,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.NavigateBefore
+import androidx.compose.material.icons.automirrored.rounded.NavigateNext
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.NavigateBefore
-import androidx.compose.material.icons.rounded.NavigateNext
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.AlertDialog
@@ -702,7 +702,7 @@ private fun ExamBottomNavigation(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Rounded.NavigateBefore,
+                    imageVector = Icons.AutoMirrored.Rounded.NavigateBefore,
                     contentDescription = null,
                     tint = if (currentIndex > 0) Color.White else Color.White.copy(alpha = 0.3f),
                     modifier = Modifier.size(18.dp)
@@ -767,7 +767,7 @@ private fun ExamBottomNavigation(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
-                        imageVector = Icons.Rounded.NavigateNext,
+                        imageVector = Icons.AutoMirrored.Rounded.NavigateNext,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(18.dp)

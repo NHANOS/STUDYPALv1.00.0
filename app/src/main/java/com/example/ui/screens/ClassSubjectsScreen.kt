@@ -21,7 +21,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.Biotech
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -29,10 +31,8 @@ import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Gavel
 import androidx.compose.material.icons.rounded.HistoryEdu
 import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.MenuBook
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Science
-import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -200,7 +200,7 @@ private fun ClassHeaderBanner(
                         .testTag("class_back_btn")
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                         contentDescription = "Back to Classes",
                         tint = Color.White
                     )
@@ -347,12 +347,12 @@ private fun getSubjectVisuals(category: String): Pair<ImageVector, List<Color>> 
         "physics" -> Pair(Icons.Rounded.Science, listOf(Color(0xFF3A86FF), Color(0xFF64D2FF)))
         "chemistry" -> Pair(Icons.Rounded.Biotech, listOf(Color(0xFFFF5964), Color(0xFFFF9B71)))
         "biology" -> Pair(Icons.Rounded.Biotech, listOf(Color(0xFF06D6A0), Color(0xFF1B9AAA)))
-        "english" -> Pair(Icons.Rounded.MenuBook, listOf(Color(0xFFFF7597), Color(0xFFFFB7C5)))
+        "english" -> Pair(Icons.AutoMirrored.Rounded.MenuBook, listOf(Color(0xFFFF7597), Color(0xFFFFB7C5)))
         "history" -> Pair(Icons.Rounded.HistoryEdu, listOf(Color(0xFFFF9F1C), Color(0xFFFFD166)))
         "geography" -> Pair(Icons.Rounded.Public, listOf(Color(0xFF2EC4B6), Color(0xFFCBF3F0)))
         "civics" -> Pair(Icons.Rounded.Gavel, listOf(Color(0xFF9D4EDD), Color(0xFFE0AAFF)))
-        "economics" -> Pair(Icons.Rounded.TrendingUp, listOf(Color(0xFF2A9D8F), Color(0xFFE76F51)))
+        "economics" -> Pair(Icons.AutoMirrored.Rounded.TrendingUp, listOf(Color(0xFF2A9D8F), Color(0xFFE76F51)))
         "cs" -> Pair(Icons.Rounded.Code, listOf(Color(0xFF00B4D8), Color(0xFF90E0EF)))
-        else -> Pair(Icons.Rounded.MenuBook, listOf(AnimeGlowPink, AnimeGlowCyan))
+        else -> Pair(Icons.AutoMirrored.Rounded.MenuBook, listOf(AnimeGlowPink, AnimeGlowCyan))
     }
 }

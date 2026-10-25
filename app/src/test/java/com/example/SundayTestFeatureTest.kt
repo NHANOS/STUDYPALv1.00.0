@@ -30,8 +30,6 @@ class SundayTestFeatureTest {
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
         sundayManager = SundayTestManager.getInstance(context)
-        // Ensure simulation mode is enabled for deterministic testing
-        sundayManager.setSimulationMode(true)
         sundayManager.bypassCooldownForTesting()
     }
 
@@ -41,6 +39,25 @@ class SundayTestFeatureTest {
             "This test is only available on Sunday. You cannot take the test today.",
             SundayTestManager.RESTRICTION_MESSAGE
         )
+    }
+
+    @Test
+    fun testProductionDateVerificationStrictEnforcement() {
+        // When accessed on non-Sundays, starting test is strictly blocked with restriction message
+        val (canStartNonSunday, nonSundayReason) = sundayManager.canStartTest(isSunday = false)
+        assertFalse("Cannot start test on non-Sunday dates", canStartNonSunday)
+        assertEquals(SundayTestManager.RESTRICTION_MESSAGE, nonSundayReason)
+
+        // Verify system Calendar DAY_OF_WEEK logic matches Calendar.SUNDAY
+        val sundayCal = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY)
+        }
+        assertEquals(java.util.Calendar.SUNDAY, sundayCal.get(java.util.Calendar.DAY_OF_WEEK))
+
+        val mondayCal = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY)
+        }
+        assertTrue(mondayCal.get(java.util.Calendar.DAY_OF_WEEK) != java.util.Calendar.SUNDAY)
     }
 
     @Test
@@ -118,7 +135,7 @@ class SundayTestFeatureTest {
         assertTrue(sundayManager.getCooldownRemainingMillis() > 0)
 
         // Attempting to start now should be blocked by cooldown
-        val (canStart, reason) = sundayManager.canStartTest()
+        val (canStart, reason) = sundayManager.canStartTest(isSunday = true)
         assertFalse(canStart)
         assertTrue(reason?.contains("Cooldown", ignoreCase = true) == true)
 

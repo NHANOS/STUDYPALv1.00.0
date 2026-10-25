@@ -419,6 +419,76 @@ class ExampleRobolectricTest {
     // Dedicated Sunday Test button label for center bottom bar
     assertEquals("Sunday Test", context.getString(R.string.nav_sunday_test))
   }
+
+  @Test
+  fun `verify mobile chrome user agent and ad blocking specifications`() {
+    // 1. Mobile Chrome User Agent validation
+    assertTrue(AdBlocker.MOBILE_CHROME_USER_AGENT.contains("Android"))
+    assertTrue(AdBlocker.MOBILE_CHROME_USER_AGENT.contains("Chrome/"))
+    assertTrue(AdBlocker.MOBILE_CHROME_USER_AGENT.contains("Mobile Safari/537.36"))
+
+    // 2. Ad blocking coverage check
+    assertTrue(AdBlocker.isAd("https://googleads.g.doubleclick.net/pagead/ads"))
+    assertTrue(AdBlocker.isAd("https://an.yandex.ru/system/context.js"))
+    assertTrue(AdBlocker.isAd("https://richads.com/ad.js"))
+    assertTrue(AdBlocker.isAd("https://admaven.com/pop.js"))
+
+    val emptyRes = AdBlocker.createEmptyResource()
+    assertEquals("text/plain", emptyRes.mimeType)
+    assertEquals("utf-8", emptyRes.encoding)
+  }
+
+  @Test
+  fun `verify study timer foreground notification channels and alarm dismiss action`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val lockManager = com.example.data.StudyLockManager.getInstance(context)
+
+    // Verify channel IDs
+    assertEquals("study_countdown_focus_channel", com.example.service.StudyBlockerService.CHANNEL_ID_COUNTDOWN)
+    assertEquals("study_alarm_heads_up_channel", com.example.service.StudyBlockerService.CHANNEL_ID_ALARM)
+
+    // Simulate timer reaching 00:00 and alarm ringing
+    lockManager.updateSessionCountdown(remainingSeconds = 0, isCompleted = true)
+    assertTrue("Alarm must be marked as ringing when timer reaches zero", lockManager.isAlarmRinging.value)
+
+    // Test AlarmDismissReceiver processing ACTION_STOP_ALARM
+    val receiver = com.example.service.AlarmDismissReceiver()
+    val stopIntent = android.content.Intent(com.example.service.StudyBlockerService.ACTION_STOP_ALARM)
+    receiver.onReceive(context, stopIntent)
+
+    // Verify alarm is silenced immediately
+    assertFalse("Alarm must be silenced when Stop action is received", lockManager.isAlarmRinging.value)
+
+    // Also verify ACTION_DISMISS_ALARM silences alarm
+    lockManager.updateSessionCountdown(remainingSeconds = 0, isCompleted = true)
+    assertTrue(lockManager.isAlarmRinging.value)
+    val dismissIntent = android.content.Intent(com.example.service.StudyBlockerService.ACTION_DISMISS_ALARM)
+    receiver.onReceive(context, dismissIntent)
+    assertFalse("Alarm must be silenced when Dismiss action is received", lockManager.isAlarmRinging.value)
+  }
+
+  @Test
+  fun `verify app blocker helper package query and permission intents`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+
+    // Verify distraction list contains known social media and entertainment apps
+    assertTrue(com.example.util.AppBlockerHelper.COMMON_DISTRACTIONS.contains("com.google.android.youtube"))
+    assertTrue(com.example.util.AppBlockerHelper.COMMON_DISTRACTIONS.contains("com.instagram.android"))
+    assertTrue(com.example.util.AppBlockerHelper.COMMON_DISTRACTIONS.contains("com.whatsapp"))
+    assertTrue(com.example.util.AppBlockerHelper.COMMON_DISTRACTIONS.contains("com.netflix.mediaclient"))
+
+    // Verify launchable app retrieval does not crash and excludes own package
+    val apps = com.example.util.AppBlockerHelper.getInstalledLaunchableApps(context)
+    assertNotNull(apps)
+    assertFalse(apps.any { it.packageName == context.packageName })
+
+    // Verify usage access and overlay settings intents
+    val usageIntent = com.example.util.AppBlockerHelper.getUsageAccessSettingsIntent()
+    assertEquals(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS, usageIntent.action)
+
+    val overlayIntent = com.example.util.AppBlockerHelper.getOverlaySettingsIntent(context)
+    assertNotNull(overlayIntent)
+  }
 }
 
 

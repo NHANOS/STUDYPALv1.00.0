@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -44,6 +46,16 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Study timer countdown and distraction app blocker" />
         </service>
+
+        <receiver
+            android:name=".service.AlarmDismissReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.service.ACTION_STOP_ALARM" />
+                <action android:name="com.example.service.ACTION_DISMISS_ALARM" />
+                <action android:name="com.example.service.ACTION_SILENCE_ALARM" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
