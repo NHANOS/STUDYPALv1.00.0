@@ -1,0 +1,113 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Sky: Soft, low-brightness twilight evening gradient -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="0"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF0F1322" />
+                <item android:offset="0.35" android:color="#FF151B30" />
+                <item android:offset="0.65" android:color="#FF1E1D36" />
+                <item android:offset="1.0" android:color="#FF111320" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Distant soft city skyline silhouettes -->
+    <path
+        android:pathData="M0,1250 L80,1250 L80,1080 L200,1080 L200,1200 L320,1200 L320,1020 L450,1020 L450,1180 L620,1180 L620,980 L760,980 L760,1160 L900,1160 L900,1060 L1080,1060 L1080,1500 L0,1500 Z"
+        android:fillColor="#1A182035" />
+
+    <path
+        android:pathData="M0,1320 L120,1320 L120,1160 L240,1160 L240,1260 L400,1260 L400,1100 L560,1100 L560,1240 L700,1240 L700,1120 L860,1120 L860,1220 L1080,1220 L1080,1550 L0,1550 Z"
+        android:fillColor="#FF141829" />
+
+    <!-- Cozy soft lit building windows (low brightness warm amber) -->
+    <path android:pathData="M140,1190h30v40h-30z" android:fillColor="#4DFFD166" />
+    <path android:pathData="M185,1210h25v35h-25z" android:fillColor="#3DFFB074" />
+    <path android:pathData="M430,1140h35v45h-35z" android:fillColor="#40E0C3FC" />
+    <path android:pathData="M480,1160h30v40h-30z" android:fillColor="#4DFFD166" />
+    <path android:pathData="M730,1150h35v45h-35z" android:fillColor="#4580DED9" />
+    <path android:pathData="M780,1180h30v35h-30z" android:fillColor="#4DFFD166" />
+
+    <!-- Wet asphalt ground plane -->
+    <path
+        android:pathData="M0,1460h1080v460h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1460"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF131625" />
+                <item android:offset="0.5" android:color="#FF0F111E" />
+                <item android:offset="1.0" android:color="#FF0A0C16" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Streetlamp post -->
+    <path
+        android:pathData="M270,1180 L275,1180 L275,1560 L270,1560 Z"
+        android:fillColor="#FF232840" />
+    <path
+        android:pathData="M250,1180 L295,1180 L290,1160 L255,1160 Z"
+        android:fillColor="#FF2B3250" />
+
+    <!-- Soft diffused streetlamp aura (subtle, eye-comfortable warm amber) -->
+    <path
+        android:pathData="M170,1170 A100,100 0 1,0 370,1170 A100,100 0 1,0 170,1170 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="270"
+                android:centerY="1170"
+                android:gradientRadius="100">
+                <item android:offset="0.0" android:color="#59FFDE8A" />
+                <item android:offset="0.5" android:color="#26FFAA33" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle puddle reflections on wet ground -->
+    <path
+        android:pathData="M150,1650 Q280,1620 420,1650 Q280,1680 150,1650 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="285"
+                android:centerY="1650"
+                android:gradientRadius="135">
+                <item android:offset="0.0" android:color="#2EFFDD88" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle, calm rain streaks -->
+    <path android:pathData="M80,300 L72,360" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M190,480 L182,540" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M310,240 L302,300" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M440,520 L432,580" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M560,340 L552,400" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M680,260 L672,320" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M820,440 L812,500" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M940,300 L932,360" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M120,800 L112,860" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M260,920 L252,980" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M520,850 L512,910" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M740,780 L732,840" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+    <path android:pathData="M890,920 L882,980" android:strokeWidth="1.5" android:strokeColor="#20FFFFFF" />
+</vector>

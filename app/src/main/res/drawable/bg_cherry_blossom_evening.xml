@@ -1,0 +1,71 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Sky: Calming, warm dusky rose and plum twilight gradient -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="0"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF241222" />
+                <item android:offset="0.4" android:color="#FF381C2E" />
+                <item android:offset="0.75" android:color="#FF40242B" />
+                <item android:offset="1.0" android:color="#FF1E111B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Gentle muted setting sun aura (soft, non-intense, low brightness) -->
+    <path
+        android:pathData="M340,1050 A200,200 0 1,0 740,1050 A200,200 0 1,0 340,1050 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="540"
+                android:centerY="1050"
+                android:gradientRadius="200">
+                <item android:offset="0.0" android:color="#36FFA07A" />
+                <item android:offset="0.6" android:color="#1AEE7762" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Distant serene hill silhouette -->
+    <path
+        android:pathData="M0,1260 Q400,1180 750,1240 Q940,1270 1080,1220 L1080,1920 L0,1920 Z"
+        android:fillColor="#FF180D17" />
+
+    <!-- Graceful sakura branch silhouette (arch from top left) -->
+    <path
+        android:pathData="M0,0 Q240,180 480,160 Q300,220 0,160 Z"
+        android:fillColor="#FF150A13" />
+    <path
+        android:pathData="M240,150 Q360,260 520,240 Q380,290 220,180 Z"
+        android:fillColor="#FF150A13" />
+
+    <!-- Soft muted cherry blossom clusters (low saturation pastel rose) -->
+    <path android:pathData="M120,110 A16,16 0 1,0 152,110 A16,16 0 1,0 120,110 Z" android:fillColor="#66E295A8" />
+    <path android:pathData="M220,140 A14,14 0 1,0 248,140 A14,14 0 1,0 220,140 Z" android:fillColor="#66F4B7C5" />
+    <path android:pathData="M320,160 A18,18 0 1,0 356,160 A18,18 0 1,0 320,160 Z" android:fillColor="#66E295A8" />
+    <path android:pathData="M440,170 A15,15 0 1,0 470,170 A15,15 0 1,0 440,170 Z" android:fillColor="#66F4B7C5" />
+    <path android:pathData="M510,230 A16,16 0 1,0 542,230 A16,16 0 1,0 510,230 Z" android:fillColor="#66E295A8" />
+    <path android:pathData="M380,240 A14,14 0 1,0 408,240 A14,14 0 1,0 380,240 Z" android:fillColor="#66F4B7C5" />
+
+    <!-- Drifting soft petals -->
+    <path android:pathData="M160,450 Q175,470 170,490 Q155,470 160,450 Z" android:fillColor="#4DE295A8" />
+    <path android:pathData="M320,620 Q335,640 330,660 Q315,640 320,620 Z" android:fillColor="#4DF4B7C5" />
+    <path android:pathData="M520,540 Q535,560 530,580 Q515,560 520,540 Z" android:fillColor="#4DE295A8" />
+    <path android:pathData="M720,720 Q735,740 730,760 Q715,740 720,720 Z" android:fillColor="#4DF4B7C5" />
+    <path android:pathData="M880,590 Q895,610 890,630 Q875,610 880,590 Z" android:fillColor="#4DE295A8" />
+    <path android:pathData="M240,940 Q255,960 250,980 Q235,960 240,940 Z" android:fillColor="#4DF4B7C5" />
+    <path android:pathData="M640,1020 Q655,1040 650,1060 Q635,1040 640,1020 Z" android:fillColor="#4DE295A8" />
+</vector>

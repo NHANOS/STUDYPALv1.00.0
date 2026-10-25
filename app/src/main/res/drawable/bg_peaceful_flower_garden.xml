@@ -1,0 +1,73 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Sky: Muted, peaceful twilight pastel gradient (calm, low brightness) -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="0"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF16222E" />
+                <item android:offset="0.4" android:color="#FF24333A" />
+                <item android:offset="0.75" android:color="#FF2B3834" />
+                <item android:offset="1.0" android:color="#FF1A231F" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Gentle soft sunlight glow (very subtle, non-glaring) -->
+    <path
+        android:pathData="M700,350 A200,200 0 1,0 1100,350 A200,200 0 1,0 700,350 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="900"
+                android:centerY="350"
+                android:gradientRadius="200">
+                <item android:offset="0.0" android:color="#24FFF4B8" />
+                <item android:offset="0.6" android:color="#0DFFDE80" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Distant misty hills (muted sage green) -->
+    <path
+        android:pathData="M0,980 Q320,860 680,940 Q880,980 1080,920 L1080,1920 L0,1920 Z"
+        android:fillColor="#FF212F2B" />
+
+    <!-- Midground garden slope (soft earthy emerald sage) -->
+    <path
+        android:pathData="M0,1180 Q400,1080 820,1160 Q960,1190 1080,1150 L1080,1920 L0,1920 Z"
+        android:fillColor="#FF1C2823" />
+
+    <!-- Foreground garden lawn -->
+    <path
+        android:pathData="M0,1380 Q350,1320 750,1360 Q940,1380 1080,1340 L1080,1920 L0,1920 Z"
+        android:fillColor="#FF16211C" />
+
+    <!-- Calming pastel wildflower accents (low saturation, soft blush, lavender & pale cream) -->
+    <path android:pathData="M140,1460 A12,12 0 1,0 164,1460 A12,12 0 1,0 140,1460 Z" android:fillColor="#59DDA7A5" />
+    <path android:pathData="M240,1520 A10,10 0 1,0 260,1520 A10,10 0 1,0 240,1520 Z" android:fillColor="#54B8A5C8" />
+    <path android:pathData="M380,1440 A14,14 0 1,0 408,1440 A14,14 0 1,0 380,1440 Z" android:fillColor="#59E8D8A6" />
+    <path android:pathData="M520,1540 A12,12 0 1,0 544,1540 A12,12 0 1,0 520,1540 Z" android:fillColor="#59DDA7A5" />
+    <path android:pathData="M660,1480 A11,11 0 1,0 682,1480 A11,11 0 1,0 660,1480 Z" android:fillColor="#54B8A5C8" />
+    <path android:pathData="M800,1560 A13,13 0 1,0 826,1560 A13,13 0 1,0 800,1560 Z" android:fillColor="#59E8D8A6" />
+    <path android:pathData="M940,1500 A12,12 0 1,0 964,1500 A12,12 0 1,0 940,1500 Z" android:fillColor="#59DDA7A5" />
+
+    <!-- Secondary flower row -->
+    <path android:pathData="M180,1660 A12,12 0 1,0 204,1660 A12,12 0 1,0 180,1660 Z" android:fillColor="#4AB8A5C8" />
+    <path android:pathData="M320,1720 A14,14 0 1,0 348,1720 A14,14 0 1,0 320,1720 Z" android:fillColor="#52DDA7A5" />
+    <path android:pathData="M480,1640 A11,11 0 1,0 502,1640 A11,11 0 1,0 480,1640 Z" android:fillColor="#52E8D8A6" />
+    <path android:pathData="M640,1700 A13,13 0 1,0 666,1700 A13,13 0 1,0 640,1700 Z" android:fillColor="#52DDA7A5" />
+    <path android:pathData="M780,1670 A12,12 0 1,0 804,1670 A12,12 0 1,0 780,1670 Z" android:fillColor="#4AB8A5C8" />
+    <path android:pathData="M920,1740 A14,14 0 1,0 948,1740 A14,14 0 1,0 920,1740 Z" android:fillColor="#52E8D8A6" />
+</vector>

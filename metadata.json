@@ -1,0 +1,6 @@
+{
+  "name": "STUDYPAL",
+  "description": "Anime glassmorphism study app for Classes 9-12 with subjects, chapters, highlights, app blocker, and tests.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

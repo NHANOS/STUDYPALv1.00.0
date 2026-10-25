@@ -1,0 +1,148 @@
+package com.example.util
+
+import android.app.AppOpsManager
+import android.app.usage.UsageEvents
+import android.app.usage.UsageStatsManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Process
+
+data class InstalledAppItem(
+    val packageName: String,
+    val appName: String,
+    val isDistraction: Boolean
+)
+
+object AppBlockerHelper {
+
+    // Common distraction packages on Android (social media, entertainment, streaming, messaging, games)
+    val COMMON_DISTRACTIONS = setOf(
+        "com.google.android.youtube",
+        "com.instagram.android",
+        "com.whatsapp",
+        "com.facebook.katana",
+        "com.facebook.orca",
+        "com.twitter.android",
+        "com.snapchat.android",
+        "com.netflix.mediaclient",
+        "com.android.chrome",
+        "com.google.android.apps.tachyon",
+        "org.telegram.messenger",
+        "com.reddit.frontpage",
+        "com.zhiliaoapp.musically", // TikTok
+        "com.spotify.music",
+        "com.amazon.avod.thirdpartyclient", // Prime Video
+        "com.disney.disneyplus",
+        "com.supercell.clashofclans",
+        "com.supercell.brawlstars",
+        "com.dts.freefireth",
+        "com.tencent.ig",
+        "com.activision.callofduty.shooter"
+    )
+
+    /**
+     * Fetch user-accessible installed applications that have a launch intent.
+     */
+    fun getInstalledLaunchableApps(context: Context): List<InstalledAppItem> {
+        val pm = context.packageManager
+        val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+
+        val resolveInfos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pm.queryIntentActivities(mainIntent, PackageManager.ResolveInfoFlags.of(0L))
+        } else {
+            @Suppress("DEPRECATION")
+            pm.queryIntentActivities(mainIntent, 0)
+        }
+
+        val myPackageName = context.packageName
+        val appList = mutableListOf<InstalledAppItem>()
+        val seenPackages = mutableSetOf<String>()
+
+        for (info in resolveInfos) {
+            val pkg = info.activityInfo.packageName
+            if (pkg == myPackageName || seenPackages.contains(pkg)) {
+                continue
+            }
+            seenPackages.add(pkg)
+
+            val name = try {
+                info.loadLabel(pm).toString()
+            } catch (_: Exception) {
+                pkg
+            }
+
+            val isDistraction = COMMON_DISTRACTIONS.contains(pkg) ||
+                    name.contains("youtube", ignoreCase = true) ||
+                    name.contains("instagram", ignoreCase = true) ||
+                    name.contains("game", ignoreCase = true) ||
+                    name.contains("video", ignoreCase = true) ||
+                    name.contains("chat", ignoreCase = true)
+
+            appList.add(
+                InstalledAppItem(
+                    packageName = pkg,
+                    appName = name,
+                    isDistraction = isDistraction
+                )
+            )
+        }
+
+        // Sort: Common distractions first, then alphabetically
+        return appList.sortedWith(
+            compareByDescending<InstalledAppItem> { it.isDistraction }
+                .thenBy { it.appName.lowercase() }
+        )
+    }
+
+    /**
+     * Check if PACKAGE_USAGE_STATS permission has been enabled by the user in Settings.
+     */
+    fun isUsageAccessGranted(context: Context): Boolean {
+        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager ?: return false
+        val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            appOps.unsafeCheckOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                Process.myUid(),
+                context.packageName
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            appOps.checkOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                Process.myUid(),
+                context.packageName
+            )
+        }
+        return mode == AppOpsManager.MODE_ALLOWED
+    }
+
+    /**
+     * Query the top foreground package using UsageEvents (most reliable across Android 8-15).
+     */
+    fun getForegroundPackageName(context: Context): String? {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            ?: return null
+
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - 10000 // look back 10 seconds
+
+        val usageEvents = usageStatsManager.queryEvents(startTime, endTime) ?: return null
+        val event = UsageEvents.Event()
+        var currentForeground: String? = null
+
+        while (usageEvents.hasNextEvent()) {
+            usageEvents.getNextEvent(event)
+            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED ||
+                event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND
+            ) {
+                currentForeground = event.packageName
+            }
+        }
+
+        return currentForeground
+    }
+}

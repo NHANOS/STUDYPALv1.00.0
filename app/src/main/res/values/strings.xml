@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">STUDYPAL</string>
+    <string name="top_bar_title">STUDYPAL</string>
+    <string name="menu_logo">Logo</string>
+    <string name="menu_profile">Profile</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_about">About STUDYPAL</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_sunday_test">Sunday Test</string>
+    <string name="nav_progress">Progress</string>
+    <string name="coming_soon_badge">Coming Soon</string>
+</resources>

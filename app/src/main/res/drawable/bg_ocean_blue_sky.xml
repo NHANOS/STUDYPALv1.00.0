@@ -1,0 +1,66 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Sky: Calming, low-brightness steel blue to misty horizon gradient -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="0"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF132230" />
+                <item android:offset="0.45" android:color="#FF1F374A" />
+                <item android:offset="0.65" android:color="#FF274358" />
+                <item android:offset="1.0" android:color="#FF0E1C27" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Gentle soft clouds (subtle, non-glaring) -->
+    <path
+        android:pathData="M180,820 A120,120 0 1,0 420,820 A100,100 0 1,0 600,820 A90,90 0 1,0 760,820 L180,820 Z"
+        android:fillColor="#1F82B2D2" />
+    <path
+        android:pathData="M380,780 A150,150 0 1,0 680,780 A120,120 0 1,0 880,780 L380,780 Z"
+        android:fillColor="#15FFFFFF" />
+
+    <!-- Distant serene misty coastline on horizon -->
+    <path
+        android:pathData="M60,1080 Q180,1050 320,1080 Z"
+        android:fillColor="#3D1A3B44" />
+    <path
+        android:pathData="M720,1080 Q840,1040 980,1080 Z"
+        android:fillColor="#331A3B44" />
+
+    <!-- Ocean surface: deep, soothing teal navy -->
+    <path
+        android:pathData="M0,1080h1080v840h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1080"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF142A38" />
+                <item android:offset="0.4" android:color="#FF0F212E" />
+                <item android:offset="1.0" android:color="#FF08131B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Gentle horizontal wave ripples (soft, low-contrast) -->
+    <path android:pathData="M0,1140 Q270,1125 540,1140 T1080,1140" android:strokeWidth="1.5" android:strokeColor="#245BB0D6" />
+    <path android:pathData="M0,1240 Q270,1220 540,1240 T1080,1240" android:strokeWidth="1.8" android:strokeColor="#1F5BB0D6" />
+    <path android:pathData="M0,1360 Q270,1340 540,1360 T1080,1360" android:strokeWidth="2.0" android:strokeColor="#1A5BB0D6" />
+    <path android:pathData="M0,1500 Q270,1475 540,1500 T1080,1500" android:strokeWidth="2.2" android:strokeColor="#155BB0D6" />
+    <path android:pathData="M0,1660 Q270,1635 540,1660 T1080,1660" android:strokeWidth="2.5" android:strokeColor="#125BB0D6" />
+    <path android:pathData="M0,1820 Q270,1795 540,1820 T1080,1820" android:strokeWidth="2.8" android:strokeColor="#0F5BB0D6" />
+</vector>

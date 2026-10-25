@@ -1,0 +1,103 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Sky: Calming, deep midnight navy to quiet indigo gradient (low brightness, restful) -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="0"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF0B0D18" />
+                <item android:offset="0.4" android:color="#FF121628" />
+                <item android:offset="0.75" android:color="#FF16182B" />
+                <item android:offset="1.0" android:color="#FF080A12" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle cosmic nebula wash (soft, low opacity) -->
+    <path
+        android:pathData="M180,620 A300,200 0 1,0 780,620 A300,200 0 1,0 180,620 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="480"
+                android:centerY="620"
+                android:gradientRadius="300">
+                <item android:offset="0.0" android:color="#1A6B46C1" />
+                <item android:offset="0.6" android:color="#0D2B6CB0" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Gentle soft crescent moon (low brightness, comfortable warm cream) -->
+    <path
+        android:pathData="M780,310 A60,60 0 1,0 860,390 A55,55 0 1,1 780,310 Z"
+        android:fillColor="#80FFF8DC" />
+
+    <!-- Soft moon aura (subtle halo) -->
+    <path
+        android:pathData="M720,330 A100,100 0 1,0 920,330 A100,100 0 1,0 720,330 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="820"
+                android:centerY="330"
+                android:gradientRadius="100">
+                <item android:offset="0.0" android:color="#24FFF8DC" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Faint, calm twinkling stars (low brightness, tiny soft points) -->
+    <path android:pathData="M140,220 A2.5,2.5 0 1,0 145,220 A2.5,2.5 0 1,0 140,220 Z" android:fillColor="#50FFFFFF" />
+    <path android:pathData="M280,340 A2,2 0 1,0 284,340 A2,2 0 1,0 280,340 Z" android:fillColor="#45FFFFFF" />
+    <path android:pathData="M420,180 A2.5,2.5 0 1,0 425,180 A2.5,2.5 0 1,0 420,180 Z" android:fillColor="#55FFFFFF" />
+    <path android:pathData="M560,280 A2,2 0 1,0 564,280 A2,2 0 1,0 560,280 Z" android:fillColor="#40FFFFFF" />
+    <path android:pathData="M690,160 A3,3 0 1,0 696,160 A3,3 0 1,0 690,160 Z" android:fillColor="#60FFFFFF" />
+    <path android:pathData="M920,240 A2,2 0 1,0 924,240 A2,2 0 1,0 920,240 Z" android:fillColor="#45FFFFFF" />
+    <path android:pathData="M180,520 A2,2 0 1,0 184,520 A2,2 0 1,0 180,520 Z" android:fillColor="#40FFFFFF" />
+    <path android:pathData="M340,680 A2.5,2.5 0 1,0 345,680 A2.5,2.5 0 1,0 340,680 Z" android:fillColor="#50FFFFFF" />
+    <path android:pathData="M610,580 A2,2 0 1,0 614,580 A2,2 0 1,0 610,580 Z" android:fillColor="#40FFFFFF" />
+    <path android:pathData="M840,620 A2.5,2.5 0 1,0 845,620 A2.5,2.5 0 1,0 840,620 Z" android:fillColor="#55FFFFFF" />
+    <path android:pathData="M960,480 A2,2 0 1,0 964,480 A2,2 0 1,0 960,480 Z" android:fillColor="#40FFFFFF" />
+
+    <!-- Distant quiet mountain range silhouette -->
+    <path
+        android:pathData="M0,1320 L240,1180 L440,1280 L700,1150 L890,1260 L1080,1210 L1080,1920 L0,1920 Z"
+        android:fillColor="#FF10121F" />
+
+    <!-- Calm placid lake plane -->
+    <path
+        android:pathData="M0,1460h1080v460h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1460"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF0C0E1A" />
+                <item android:offset="1.0" android:color="#FF06070E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Soft quiet moon reflection on water -->
+    <path
+        android:pathData="M760,1580 Q820,1570 880,1580 Q820,1590 760,1580 Z"
+        android:fillColor="#24FFF8DC" />
+    <path
+        android:pathData="M780,1660 Q820,1650 860,1660 Q820,1670 780,1660 Z"
+        android:fillColor="#1AFFF8DC" />
+</vector>
